@@ -1,0 +1,89 @@
+@extends('shop.layouts.app')
+
+@section('title')
+Sales List
+@endsection
+@section('shop')
+<section class="content pt-4">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-cyan">
+                    <div class="card-header">
+                        <h3 class="card-title">Sales List</h3>
+
+                        <a href="{{ route('shop.sales.create') }}" class="btn btn-success float-right"><i class="fa fa-plus"></i> Add</a>
+
+                    </div>
+                     <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Voucher No</th>
+                                    <th>Customer Name</th>
+                                    <th>Date</th>
+                                    <th>Products</th>
+                                    <th>Price</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($sales as $item)
+
+                                <tr>
+                                    <td>{{ $item->voucher_no  }}</td>
+                                    <td>{{ $item->customer?->name }} - ({{ $item->customer->phone }})</td>
+                                    <td>{{ $item->sale_date }}</td>
+                                    <td>
+                                        @foreach($item->items as $row)
+                                        {{ $row->product->name}} x {{ $row->qty}}({{ $row->unit->name}})<br>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 text-dark font-weight-bold">
+                                            Total Price : {{ shopCurrency() }}{{ $item->price }} 
+                                        </p>
+                                        @if($item->vat)
+                                        <p class="mb-0">
+                                           {{ $item->vat ? '(with ' . $item->vat . '% VAT)' : '' }}
+                                        </p>
+                                        @endif
+
+                                        @php
+                                            $totalPaid = $item->payments->sum('paid');
+                                            $totalDue = $item->price - $totalPaid;
+                                        @endphp
+
+                                         <p class="mb-0 text-success font-weight-bold">Paid : {{ shopCurrency() }}{{ number_format($totalPaid,2) }}</p>
+                                        <p class="mb-0 text-danger font-weight-bold">Due : {{ shopCurrency() }}{{ number_format($totalDue,2) }}</p>
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <a href="{{ route('shop.sales.show', $item->id) }}" class="btn btn-sm btn-secondary"><i class="fa fa-eye"></i></a>
+
+                                        <a href="{{ route('shop.sales.edit', $item->id) }}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
+
+
+                                        <!-- <form id="delete-form-{{ $item->id }}" action="{{ route('shop.sales.destroy', $item->id) }}" method="POST" style="display: none;">
+                                            @csrf @method('DELETE')
+                                        </form>
+                                        <a href="#" class="btn btn-sm btn-danger delete-btn" data-id="{{ $item->id }}"><i class="fa fa-trash"></i></a> -->
+
+                                    </td>
+                                </tr>
+
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
